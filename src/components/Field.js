@@ -55,6 +55,7 @@ class Field extends React.Component {
     const shouldUpdate =
       Utils.get(nextFormState.values, field) !== Utils.get(currentFormState.values, field) ||
       Utils.get(nextFormState.touched, field) !== Utils.get(currentFormState.touched, field) ||
+      Utils.get(nextFormState.asyncErrors, field) !== Utils.get(currentFormState.asyncErrors, field) ||
       Utils.get(nextFormState.errors, field) !== Utils.get(currentFormState.errors, field) ||
       Utils.get(nextFormState.warnings, field) !== Utils.get(currentFormState.warnings, field) ||
       Utils.get(nextFormState.successes, field) !== Utils.get(currentFormState.successes, field) ||
@@ -106,6 +107,7 @@ class Field extends React.Component {
       fieldName: fullField,
       value: formApi.getValue(fullField),
       touched: formApi.getTouched(fullField),
+      asyncError: formApi.getAsyncError(fullField),
       error: formApi.getError(fullField),
       warning: formApi.getWarning(fullField),
       success: formApi.getSuccess(fullField),
