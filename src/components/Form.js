@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import thunkMiddleware from 'redux-thunk'
 import { createStore, applyMiddleware } from 'redux'
 import { connect } from 'react-redux'
+import { enableBatching } from 'redux-batched-actions'
 
 import BuildReducer from '../redux/BuildReducer'
 import * as actions from '../redux/actions'
@@ -544,10 +545,10 @@ class ReactForm extends Component {
     const { defaultValues, values } = props
 
     this.store = createStore(
-      BuildReducer({
+      enableBatching(BuildReducer({
         defaultValues,
         values
-      }),
+      })),
       applyMiddleware(
         thunkMiddleware // lets us dispatch() functions
         // createLogger() // neat middleware that logs actions

@@ -1,5 +1,7 @@
 import Utils from '../utils'
 
+import { batchActions } from 'redux-batched-actions'
+
 const makeAction = type => payload => ({ type, payload })
 
 export const SET_FORM_STATE = 'SET_FORM_STATE'
@@ -124,8 +126,11 @@ export function asyncValidate ({ field, validator, validationPromiseIDs }) {
     if (!validator || validator === Utils.noop) {
       return
     }
+
+    const actions = []
+
     // We are validating the specified field
-    dispatch(validatingField(field))
+    actions.push(validatingField(field))
 
     const fieldPathArray = Utils.makePathArray(field).join('.')
 
@@ -153,14 +158,14 @@ export function asyncValidate ({ field, validator, validationPromiseIDs }) {
         // If it's a non object/array, treat it as an error
         if (!Utils.isObject(current) && !Utils.isArray(current)) {
           // Nested errors aren't allowed if using string errors, so return
-          return dispatch(setAsyncError({ field: path, value: current }))
+          return actions.push(setAsyncError({ field: path, value: current }))
         }
 
         // If it's an error object, respond accordingly
         if (current.error || current.warning || current.success) {
-          dispatch(setAsyncError({ field: path, value: current.error || false }))
-          dispatch(setAsyncWarning({ field: path, value: current.warning || false }))
-          dispatch(setAsyncSuccess({ field: path, value: current.success || false }))
+          actions.push(setAsyncError({ field: path, value: current.error || false }))
+          actions.push(setAsyncWarning({ field: path, value: current.warning || false }))
+          actions.push(setAsyncSuccess({ field: path, value: current.success || false }))
           return
         }
 
@@ -177,16 +182,18 @@ export function asyncValidate ({ field, validator, validationPromiseIDs }) {
       recurse(result, field)
 
       // We successfully validated so dispatch
-      dispatch(validationSuccess(field))
+      actions.push(validationSuccess(field))
     } catch (err) {
       // An validation error happened!
       // Set the error result to true to stop further validation up the chain
       result = true
-      dispatch(validationFailure({ field, value: err }))
+      actions.push(validationFailure({ field, value: err }))
     }
 
     // Mark the field as done validating
-    dispatch(doneValidatingField(field))
+    actions.push(doneValidatingField(field))
+
+    dispatch(batchActions(actions))
 
     return Utils.cleanError(result, { removeSuccess: true })
   }
