@@ -30,6 +30,8 @@ var _redux = require('redux');
 
 var _reactRedux = require('react-redux');
 
+var _reduxBatchedActions = require('redux-batched-actions');
+
 var _BuildReducer = require('../redux/BuildReducer');
 
 var _BuildReducer2 = _interopRequireDefault(_BuildReducer);
@@ -879,10 +881,10 @@ var ReactForm = function (_Component2) {
         values = props.values;
 
 
-    _this3.store = (0, _redux.createStore)((0, _BuildReducer2.default)({
+    _this3.store = (0, _redux.createStore)((0, _reduxBatchedActions.enableBatching)((0, _BuildReducer2.default)({
       defaultValues: defaultValues,
       values: values
-    }), (0, _redux.applyMiddleware)(_reduxThunk2.default // lets us dispatch() functions
+    })), (0, _redux.applyMiddleware)(_reduxThunk2.default // lets us dispatch() functions
     // createLogger() // neat middleware that logs actions
     ));
     return _this3;

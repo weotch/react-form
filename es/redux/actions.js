@@ -17,6 +17,8 @@ var _utils = require('../utils');
 
 var _utils2 = _interopRequireDefault(_utils);
 
+var _reduxBatchedActions = require('redux-batched-actions');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -160,7 +162,7 @@ function asyncValidate(_ref3) {
 
   return function () {
     var _ref4 = _asyncToGenerator( /*#__PURE__*/_regenerator2.default.mark(function _callee(dispatch, getState) {
-      var fieldPathArray, uid, result, recurse;
+      var actions, fieldPathArray, uid, result, recurse;
       return _regenerator2.default.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -173,8 +175,11 @@ function asyncValidate(_ref3) {
               return _context.abrupt('return');
 
             case 2:
+              actions = [];
+
               // We are validating the specified field
-              dispatch(validatingField(field));
+
+              actions.push(validatingField(field));
 
               fieldPathArray = _utils2.default.makePathArray(field).join('.');
 
@@ -185,21 +190,21 @@ function asyncValidate(_ref3) {
               validationPromiseIDs.set(fieldPathArray, uid);
 
               result = void 0;
-              _context.prev = 7;
-              _context.next = 10;
+              _context.prev = 8;
+              _context.next = 11;
               return validator(_utils2.default.get(getState().values, field));
 
-            case 10:
+            case 11:
               result = _context.sent;
 
               if (!(validationPromiseIDs.get(fieldPathArray) !== uid)) {
-                _context.next = 13;
+                _context.next = 14;
                 break;
               }
 
               return _context.abrupt('return');
 
-            case 13:
+            case 14:
 
               // Set up the error recursion
               recurse = function recurse(current, path) {
@@ -209,14 +214,14 @@ function asyncValidate(_ref3) {
                 // If it's a non object/array, treat it as an error
                 if (!_utils2.default.isObject(current) && !_utils2.default.isArray(current)) {
                   // Nested errors aren't allowed if using string errors, so return
-                  return dispatch(setAsyncError({ field: path, value: current }));
+                  return actions.push(setAsyncError({ field: path, value: current }));
                 }
 
                 // If it's an error object, respond accordingly
                 if (current.error || current.warning || current.success) {
-                  dispatch(setAsyncError({ field: path, value: current.error || false }));
-                  dispatch(setAsyncWarning({ field: path, value: current.warning || false }));
-                  dispatch(setAsyncSuccess({ field: path, value: current.success || false }));
+                  actions.push(setAsyncError({ field: path, value: current.error || false }));
+                  actions.push(setAsyncWarning({ field: path, value: current.warning || false }));
+                  actions.push(setAsyncSuccess({ field: path, value: current.success || false }));
                   return;
                 }
 
@@ -239,32 +244,34 @@ function asyncValidate(_ref3) {
               recurse(result, field);
 
               // We successfully validated so dispatch
-              dispatch(validationSuccess(field));
-              _context.next = 22;
+              actions.push(validationSuccess(field));
+              _context.next = 23;
               break;
 
-            case 18:
-              _context.prev = 18;
-              _context.t0 = _context['catch'](7);
+            case 19:
+              _context.prev = 19;
+              _context.t0 = _context['catch'](8);
 
               // An validation error happened!
               // Set the error result to true to stop further validation up the chain
               result = true;
-              dispatch(validationFailure({ field: field, value: _context.t0 }));
+              actions.push(validationFailure({ field: field, value: _context.t0 }));
 
-            case 22:
+            case 23:
 
               // Mark the field as done validating
-              dispatch(doneValidatingField(field));
+              actions.push(doneValidatingField(field));
+
+              dispatch((0, _reduxBatchedActions.batchActions)(actions));
 
               return _context.abrupt('return', _utils2.default.cleanError(result, { removeSuccess: true }));
 
-            case 24:
+            case 26:
             case 'end':
               return _context.stop();
           }
         }
-      }, _callee, _this, [[7, 18]]);
+      }, _callee, _this, [[8, 19]]);
     }));
 
     return function (_x, _x2) {
