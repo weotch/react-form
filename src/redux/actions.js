@@ -158,18 +158,9 @@ export function asyncValidate ({ field, validator, validationPromiseIDs }) {
 
         // If it's an error object, respond accordingly
         if (current.error || current.warning || current.success) {
-          dispatch(setAsyncError({ field: path, value: false }))
-          dispatch(setAsyncWarning({ field: path, value: false }))
-          dispatch(setAsyncSuccess({ field: path, value: false }))
-          if (current.error) {
-            dispatch(setAsyncError({ field: path, value: current.error }))
-          }
-          if (current.warning) {
-            dispatch(setAsyncWarning({ field: path, value: current.warning }))
-          }
-          if (current.success) {
-            dispatch(setAsyncSuccess({ field: path, value: current.success }))
-          }
+          dispatch(setAsyncError({ field: path, value: current.error || false }))
+          dispatch(setAsyncWarning({ field: path, value: current.warning || false }))
+          dispatch(setAsyncSuccess({ field: path, value: current.success || false }))
           return
         }
 
