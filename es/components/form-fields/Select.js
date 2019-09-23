@@ -51,7 +51,8 @@ var SelectWrapper = function (_Component) {
           _onChange = _props.onChange,
           _onBlur = _props.onBlur,
           placeholder = _props.placeholder,
-          rest = _objectWithoutProperties(_props, ['fieldApi', 'options', 'onChange', 'onBlur', 'placeholder']);
+          naturalValue = _props.naturalValue,
+          rest = _objectWithoutProperties(_props, ['fieldApi', 'options', 'onChange', 'onBlur', 'placeholder', 'naturalValue']);
 
       var resolvedOptions = options.find(function (d) {
         return d.value === '';
@@ -71,9 +72,9 @@ var SelectWrapper = function (_Component) {
       return _react2.default.createElement(
         'select',
         _extends({}, rest, {
-          value: selectedIndex > -1 ? selectedIndex : nullIndex,
+          value: naturalValue ? value : selectedIndex > -1 ? selectedIndex : nullIndex,
           onChange: function onChange(e) {
-            var val = resolvedOptions[e.target.value].value;
+            var val = naturalValue ? e.target.value : resolvedOptions[e.target.value].value;
             setValue(val);
             if (_onChange) {
               _onChange(val, e);
@@ -89,7 +90,7 @@ var SelectWrapper = function (_Component) {
         resolvedOptions.map(function (option, i) {
           return _react2.default.createElement(
             'option',
-            { key: option.value, value: i, disabled: option.disabled },
+            { key: option.value, value: naturalValue ? option.value : i, disabled: option.disabled },
             option.label
           );
         })
