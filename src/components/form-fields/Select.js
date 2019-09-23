@@ -12,6 +12,7 @@ class SelectWrapper extends Component {
       onChange,
       onBlur,
       placeholder,
+      naturalValue,
       ...rest
     } = this.props
 
@@ -32,9 +33,9 @@ class SelectWrapper extends Component {
     return (
       <select
         {...rest}
-        value={selectedIndex > -1 ? selectedIndex : nullIndex}
+        value={naturalValue ? value : (selectedIndex > -1 ? selectedIndex : nullIndex)}
         onChange={e => {
-          const val = resolvedOptions[e.target.value].value
+          const val = naturalValue ? e.target.value : resolvedOptions[e.target.value].value
           setValue(val)
           if (onChange) {
             onChange(val, e)
@@ -48,7 +49,7 @@ class SelectWrapper extends Component {
         }}
       >
         {resolvedOptions.map((option, i) => (
-          <option key={option.value} value={i} disabled={option.disabled}>
+          <option key={option.value} value={naturalValue ? option.value : i} disabled={option.disabled}>
             {option.label}
           </option>
         ))}
